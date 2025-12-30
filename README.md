@@ -93,3 +93,84 @@ ML (Machine Learning)	Enables pattern recognition, predictions, and learning fro
 NLP (Natural Language Processing)	Bridges human language and machine understanding.
 QM (Quantum Mechanics)	Introduces quantum computation to accelerate and optimize AI+ML algorithms.
 
+
+
+## 1️⃣ Introduction
+Ce module centralise la **gestion des popups, login/logout, et rôle utilisateur**. Il orchestre les interactions entre :
+
+- `auth_popup.js` → orchestrateur principal  
+- `menu_toggle.js` → menu principal  
+- `popupfilter.js` → filtrage utilisateur  
+- `popupState` → état global pour la synchronisation  
+
+---
+
+## 2️⃣ Objectifs
+
+- Garantir la **cohérence de l’état global** (qui est connecté, quel popup est ouvert)  
+- Assurer une **signalisation précise** entre boutons et popups  
+- Permettre **des animations fluides** (fadeIn/fadeOut)  
+- Maintenir **une UX claire et intuitive** pour le dashboard  
+
+---
+
+## 3️⃣ État initial et boutons
+
+Au **lancement de l’application** :
+
+| Bouton              | État       |
+|---------------------|------------|
+| `#signInBtn`        | activé     |
+| `#menu-toggle`      | désactivé  |
+| `#filterBtn`        | désactivé  |
+
+Après **login réussi** :
+
+- Menu principal et filtre deviennent actifs selon le rôle  
+- Les animations d’ouverture sont déclenchées de façon coordonnée  
+- `popupState` est mis à jour (`menuOpen`, `filterOpen`, `role`, `activeMenu`, `activeFilter`)  
+
+---
+
+## 4️⃣ Flux d’événements principaux
+
+1. **Login réussi** → `enableDashboard(user, true)`  
+   - Ouvre `menuToggle` (toujours)  
+   - Ouvre `popupFilter` uniquement si login explicite  
+   - Synchronisation via `popupState`  
+
+2. **Boutons** :  
+   - `#menu-toggle` → toggle menu uniquement  
+   - `exit` dans menu → ferme menu  
+   - `#filterBtn` → toggle filtre uniquement  
+   - `close` dans filtre → ferme filtre  
+
+3. **Logout** → ferme tous les popups, réinitialise les boutons  
+
+---
+
+## 5️⃣ Mini diagramme de coordination
+
+  +----------------------+
+    |  auth_popup.js       |
+    |----------------------|
+    | - manage login/logout|
+    | - restore session    |
+    | - update popupState  |
+    +----------+-----------+
+               |
+    +----------+----------+
+    |                     |
++-----v-----+ +-----v------+
+| menuToggle| | popupFilter|
+|-----------| |------------|
+| toggle    | | toggle     |
+| exit | | close |
++-----+-----+ +-----+------+
+|                          |
+|                          |
+  +---------+-----------+
+            |
+      popupState
+(role, menuOpen, filterOpen,
+activeMenu, activeFilter)
