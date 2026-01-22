@@ -1,0 +1,62 @@
+ 🏗️ Project Structure: FFA + Three-Tier Flow
+
+This project’s architecture is inspired by modern software design principles, using the FFA methodology — Format, Function, Aesthetic — combined with a three-tier structure: UI → API → DATA.
+
+🔹 FFA Pillars
+
+Format – The structural layout of components and layers, defining clear responsibilities.
+
+Function (Foundation) – The core business logic, rules, and stability that the system depends on.
+
+Aesthetic – The user-facing experience: clarity, usability, and responsiveness.
+
+🔹 Three-Tier Flow
+   ┌───────────┐
+   │    UI     │ ← Presentation Layer
+   │ (Web UI)  │
+   └────┬──────┘
+        │
+        ▼
+   ┌───────────┐
+   │    API    │ ← Application & Business Layer
+   │(Server)   │
+   └────┬──────┘
+        │
+        ▼
+   ┌───────────┐
+   │   DATA    │ ← Persistence Layer (MySQL)
+   │(Database) │
+   └───────────┘
+
+🔹 Principles
+
+Separation of Concerns
+
+UI renders and collects input only
+
+API enforces business rules, authentication, and validation
+
+DATA layer is accessed exclusively via the API
+
+Unidirectional Dependency
+
+Flow is always UI → API → DATA
+
+No layer bypasses the rules of the layer beneath it
+
+Benefits
+
+Maintainability – Layers evolve independently
+
+Testability – Logic can be validated without UI coupling
+
+Security – Client cannot bypass server rules
+
+Scalability – UI and API scale independently
+
+Longevity – Architecture remains adaptable for future technologies
+
+🔹 Summary
+
+By combining FFA pillars with a three-tier structure, this project ensures clarity, robustness, and future-proofing, making it suitable for modern web applications and complex software systems.
+ 
