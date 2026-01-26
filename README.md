@@ -1,5 +1,5 @@
 # FLASK_AUTH_MVC00
-## 5️⃣  AI-ML-NLP-QM Integration project 
+## AI-ML-NLP-QM Integration project 
  
 
 Created by **Elie Hamouche Computer Engineer 2025**
