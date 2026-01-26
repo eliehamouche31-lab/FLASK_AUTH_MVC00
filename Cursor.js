@@ -1,99 +1,121 @@
-/* =========================
-   CURSOR CLASS (STATIC)
-========================= */
-class Cursor {
-  static row = null;
-  static activeCell = null;
-  static colIndex = null;
+// class cursorManager  
+ 
+class CursorManager {
+    constructor(tableSelector) {
+        this.table = document.querySelector(tableSelector);
+        this.rows = Array.from(this.table.querySelectorAll("tbody tr"));
+        this.currentRowIndex = null;
 
-  static attachToRow($row) {
-    this.row = $row;
-    this.clear();
-    this.focusFirstCell();
-    this.bindEvents();
-  }
-
-  static focusFirstCell() {
-    const $firstEditable = this.row
-      .find("td")
-      .has("input:not([disabled]), select:not([disabled])")
-      .first();
-    this.focusCell($firstEditable);
-  }
-
-  static focusCell($td) {
-    if (!$td || !$td.length) return;
-
-    $(".active-cell").removeClass("active-cell");
-    this.activeCell = $td;
-    this.colIndex = $td.index();
-    $td.addClass("active-cell");
-
-    const $input = $td.find("input,select");
-    if ($input.length) {
-      $input.focus();
-      $input.select();
+        this.listeners = {}; // for custom events like "cursorChange"
+        this.initKeyboardNavigation();
     }
-  }
 
-  static bindEvents() {
-    $(document)
-      .off(".cursor")
-      .on("keydown.cursor", "td input, td select", this.handleKeydown.bind(this))
-      .on("click.cursor", "td input, td select", function() {
-        Cursor.focusCell($(this).closest("td"));
-      });
-  }
+    // ------------------ CURSOR MANAGEMENT ------------------
+    setCursor(index) {
+        if (index < 0 || index >= this.rows.length) return;
 
-  static handleKeydown(e) {
-    if (!this.activeCell) return;
+        this.clearCursor();
+        this.currentRowIndex = index;
+        this.rows[index].classList.add("active-cursor");
 
-    const $td = this.activeCell;
-    const $row = this.row;
-
-    switch (e.key) {
-      case "ArrowRight":
-        e.preventDefault();
-        this.focusCell($td.nextAll("td").has("input,select").first());
-        break;
-      case "ArrowLeft":
-        e.preventDefault();
-        this.focusCell($td.prevAll("td").has("input,select").first());
-        break;
-      case "ArrowDown":
-        e.preventDefault();
-        this.focusSameColumn($row.next("tr"));
-        break;
-      case "ArrowUp":
-        e.preventDefault();
-        this.focusSameColumn($row.prev("tr"));
-        break;
-      case "Escape":
-        e.preventDefault();
-        Demo.cancelRowEdit($row);
-        break;
-      case "Enter":
-        e.preventDefault();
-        Demo.saveRowEdit($row);
-        break;
+        this.emit("cursorChange", this.currentRowData());
     }
-  }
 
-  static focusSameColumn($targetRow) {
-    if (!$targetRow || !$targetRow.length) return;
-    const $td = $targetRow.children("td").eq(this.colIndex);
-    if ($td.find("input,select").length) this.focusCell($td);
-  }
+    clearCursor() {
+        if (this.currentRowIndex !== null) {
+            this.rows[this.currentRowIndex].classList.remove("active-cursor");
+        }
+    }
 
-  static detach() {
-    $(document).off(".cursor");
-    this.clear();
-    this.row = null;
-  }
+    next() {
+        if (this.currentRowIndex === null) this.setCursor(0);
+        else if (this.currentRowIndex < this.rows.length - 1) this.setCursor(this.currentRowIndex + 1);
+    }
 
-  static clear() {
-    $(".active-cell").removeClass("active-cell");
-    this.activeCell = null;
-    this.colIndex = null;
-  }
+    previous() {
+        if (this.currentRowIndex === null) this.setCursor(0);
+        else if (this.currentRowIndex > 0) this.setCursor(this.currentRowIndex - 1);
+    }
+
+    currentRowData() {
+        if (this.currentRowIndex === null) return null;
+        const cells = this.rows[this.currentRowIndex].querySelectorAll("td");
+        return Array.from(cells).map(cell => cell.innerText);
+    }
+
+    currentRowElement() {
+        return this.currentRowIndex !== null ? this.rows[this.currentRowIndex] : null;
+    }
+
+    refreshRows() {
+        this.rows = Array.from(this.table.querySelectorAll("tbody tr"));
+    }
+
+    // ------------------ KEYBOARD NAVIGATION ------------------
+    initKeyboardNavigation() {
+        document.addEventListener("keydown", (e) => {
+            switch (e.key) {
+                case "ArrowDown":
+                    e.preventDefault();
+                    this.next();
+                    break;
+                case "ArrowUp":
+                    e.preventDefault();
+                    this.previous();
+                    break;
+                case "Enter":
+                    e.preventDefault();
+                    this.emit("editRow", this.currentRowData());
+                    break;
+            }
+        });
+    }
+
+    // ------------------ EVENT SYSTEM ------------------
+    on(eventName, callback) {
+        if (!this.listeners[eventName]) this.listeners[eventName] = [];
+        this.listeners[eventName].push(callback);
+    }
+
+    emit(eventName, payload) {
+        if (!this.listeners[eventName]) return;
+        this.listeners[eventName].forEach(cb => cb(payload));
+    }
+
+    // ------------------ TRIGGER INTEGRATION ------------------
+    bindTriggers({updateBtn, deleteBtn, cancelBtn, addBtn}) {
+        if (updateBtn) {
+            updateBtn.addEventListener("click", () => {
+                const rowData = this.currentRowData();
+                if (!rowData) return alert("Select a row first!");
+                this.emit("updateRow", {index: this.currentRowIndex, data: rowData});
+            });
+        }
+
+        if (deleteBtn) {
+            deleteBtn.addEventListener("click", () => {
+                const rowData = this.currentRowData();
+                if (!rowData) return alert("Select a row first!");
+                this.emit("deleteRow", {index: this.currentRowIndex, data: rowData});
+            });
+        }
+
+        if (cancelBtn) {
+            cancelBtn.addEventListener("click", () => {
+                const rowData = this.currentRowData();
+                if (!rowData) return;
+                this.emit("cancelRow", {index: this.currentRowIndex, data: rowData});
+            });
+        }
+
+        if (addBtn) {
+            addBtn.addEventListener("click", () => {
+                this.emit("addRow");
+                setTimeout(() => {
+                    this.refreshRows();
+                    this.setCursor(this.rows.length - 1); // focus new row
+                }, 50);
+            });
+        }
+    }
 }
