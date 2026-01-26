@@ -175,7 +175,8 @@ Après **login réussi** :
 (role, menuOpen, filterOpen,
 activeMenu, activeFilter) 
 
-  Team Contribution & Technical Progress
+## Team Contribution & Technical Progress
+
 This project required a high level of organization, rigor, and teamwork. Effective collaboration—grounded in cooperation, recognition, and continuous encouragement—was essential to achieving the current level of functionality.
 
 The team successfully implemented complete CRUD operations across the application:
