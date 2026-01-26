@@ -183,5 +183,24 @@ The team successfully implemented complete CRUD operations across the applicatio
 Server side: Python-based logic ensuring structured data access, integrity, and reliability.
 Client side: JavaScript-driven interactions providing responsive and consistent user functionality.
 
-These implementations reflect modern best practices in full-stack software development and establish a strong, extensible foundation for future enhancements. The project stands as a practical reference for engineers and developers working with contemporary web technologies and collaborative development environments.
+These implementations reflect modern best practices in full-stack software development and establish a strong, extensible foundation for future enhancements. The project stands as a practical reference for engineers and developers working with contemporary web technologies and collaborative development environments.    # Cursor Class for Editable Web Tables
+
+## Overview - Milestone 
+This repository provides a robust `Cursor` class that manages focus, navigation, and lifecycle in editable HTML tables, inspired by Excel's behavior. It ensures reliable row editing, keyboard navigation, and proper save/cancel/delete operations.
+
+## Cursor Lifecycle
+
+![Cursor Lifecycle](./images/A_flowchart_diagram_illustrates_the_cursor_lifecyc.png)
+
+**Lifecycle Steps:**
+1. **Row Edit Mode Activated** – User clicks 'Update' on a row.
+2. **Cursor Created** – A cursor object is initialized for the row.
+3. **Focus First Editable Cell** – The first editable cell in the row receives focus.
+4. **Navigation via Arrow Keys** – Users can move the cursor across cells and rows.
+5. **Save / Cancel / Delete** – Data is either saved, canceled, or the row is deleted.
+6. **Cursor Destroyed** – Cursor state is cleared and events unbound.
+
+## Demo
+Open `examples/demo.html` to see the Cursor class in action.
+2️⃣
 
