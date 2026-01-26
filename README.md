@@ -208,7 +208,7 @@ The following rules define non-negotiable UI behavior and must be respected
 ## MagicTable is a Milestone
 1.**Centralized Table Management**  
    -Generates tables dynamically from any JSON data.                                                                     
-   -utomatically handles images, icons, and missing data elegantly.
+   -Automatically handles images, icons, and missing data elegantly.
    
 2.**Action Buttons with Callbacks**                                              
    -Supports Details / Edit / Delete operations out of the box.                                                                                             
