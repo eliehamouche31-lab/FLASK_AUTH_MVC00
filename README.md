@@ -212,11 +212,11 @@ Open `examples/demo.html` to see the Cursor class in action.
    -Generates tables dynamically from any JSON data.                                                                     
    -utomatically handles images, icons, and missing data elegantly.
    
-2.**Action Buttons with Callbacks**   
+2.**Action Buttons with Callbacks**                                              
    -Supports Details / Edit / Delete operations out of the box.                                                                                             
    -Easy to extend via callbacks when rendering tables.                                
    
-3.**Popups and Modals** 
+3.**Popups and Modals**                                                                           
    -popup and popupMagic provide a lightweight modal system.                                                                              
    -Can display details, confirmations, or any HTML content.                                   
    
