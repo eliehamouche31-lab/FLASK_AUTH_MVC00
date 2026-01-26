@@ -214,16 +214,20 @@ Open `examples/demo.html` to see the Cursor class in action.
    
 2.**Action Buttons with Callbacks**   
    -Supports Details / Edit / Delete operations out of the box.                                                                                             
-   -Easy to extend via callbacks when rendering tables.
+   -Easy to extend via callbacks when rendering tables.                                
+   
 3.**Popups and Modals** 
    -popup and popupMagic provide a lightweight modal system.                                                                              
-   -Can display details, confirmations, or any HTML content.
+   -Can display details, confirmations, or any HTML content.                                   
+   
 4.**Search + Dynamic Rendering**  
    -Fetches data from the backend with search query support.                                                                                        
-   -Dynamically adapts columns to entity type (users, services, options, etc.)
+   -Dynamically adapts columns to entity type (users, services, options, etc.)                                       
+   
 5.**Separation of Concerns**  
    -Rendering logic is separate from event handling.                                                           
-   -MagicTable doesn’t handle business logic — it delegates through callbacks.
+   -MagicTable doesn’t handle business logic — it delegates through callbacks.                                      
+   
 6.**Future Integration Readyt**  
    -Can integrate with the Cursor class for keyboard navigation & inline editing.                                                            
    -Ready to expand into React/Vue wrappers or other frontend frameworks.
