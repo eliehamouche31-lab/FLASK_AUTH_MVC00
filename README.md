@@ -173,4 +173,13 @@ Après **login réussi** :
             |
       popupState
 (role, menuOpen, filterOpen,
-activeMenu, activeFilter)
+activeMenu, activeFilter) 
+
+Team Contribution & Technical Progress
+This project required a high level of organization, rigor, and teamwork. Effective collaboration—grounded in cooperation, recognition, and continuous encouragement—was essential to achieving the current level of functionality.
+
+The team successfully implemented complete CRUD operations across the application:
+Server side: Python-based logic ensuring structured data access, integrity, and reliability.
+Client side: JavaScript-driven interactions providing responsive and consistent user functionality.
+
+These implementations reflect modern best practices in full-stack software development and establish a strong, extensible foundation for future enhancements. The project stands as a practical reference for engineers and developers working with contemporary web technologies and collaborative development environments.
