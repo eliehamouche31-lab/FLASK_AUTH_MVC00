@@ -200,14 +200,11 @@ This repository provides a robust `Cursor` class that manages focus, navigation,
 5. **Save / Cancel / Delete** – Data is either saved, canceled, or the row is deleted.
 6. **Cursor Destroyed** – Cursor state is cleared and events unbound.
 
-## Demo
-Open `examples/demo.html` to see the Cursor class in action.
-2️⃣<div style="text-align:center; margin:20px;">
-  <h3>Cursor Lifecycle Diagram</h3>
-  <img src="images/A_flowchart_diagram_illustrates_the_cursor_lifecyc.png" 
-       alt="Cursor Lifecycle Diagram" style="max-width:600px; width:100%;">
-</div>
-
+## CursorManager & Editable Grid Contract
+ This project implements an Excel-like cursor-driven table system.
+The following rules define non-negotiable UI behavior and must be respected
+ by all CRUD, keyboard, and async logic.
+ 
 ## MagicTable is a Milestone
 1.**Centralized Table Management**  
    -Generates tables dynamically from any JSON data.                                                                     
