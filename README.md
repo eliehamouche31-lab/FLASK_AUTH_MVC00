@@ -209,22 +209,23 @@ Open `examples/demo.html` to see the Cursor class in action.
 
 ## MagicTable is a Milestone
 1.**Centralized Table Management**  
-   .Generates tables dynamically from any JSON data.
-   .Automatically handles images, icons, and missing data elegantly.
-2.**Action Buttons with Callbacks**  
-   .Supports Details / Edit / Delete operations out of the box.
-   .Easy to extend via callbacks when rendering tables.
+   -Generates tables dynamically from any JSON data.                                                                     
+   -utomatically handles images, icons, and missing data elegantly.
+   
+2.**Action Buttons with Callbacks**   
+   -Supports Details / Edit / Delete operations out of the box.                                                                                             
+   -Easy to extend via callbacks when rendering tables.
 3.**Popups and Modals** 
-   .popup and popupMagic provide a lightweight modal system.
-   .Can display details, confirmations, or any HTML content.
+   -popup and popupMagic provide a lightweight modal system.                                                                              
+   -Can display details, confirmations, or any HTML content.
 4.**Search + Dynamic Rendering**  
-   .Fetches data from the backend with search query support.
-   .Dynamically adapts columns to entity type (users, services, options, etc.)
+   -Fetches data from the backend with search query support.                                                                                        
+   -Dynamically adapts columns to entity type (users, services, options, etc.)
 5.**Separation of Concerns**  
-   .Rendering logic is separate from event handling.
-   .MagicTable doesn’t handle business logic — it delegates through callbacks.
+   -Rendering logic is separate from event handling.                                                           
+   -MagicTable doesn’t handle business logic — it delegates through callbacks.
 6.**Future Integration Readyt**  
-   .Can integrate with the Cursor class for keyboard navigation & inline editing.
-   .Ready to expand into React/Vue wrappers or other frontend frameworks.
+   -Can integrate with the Cursor class for keyboard navigation & inline editing.                                                            
+   -Ready to expand into React/Vue wrappers or other frontend frameworks.
 
 
