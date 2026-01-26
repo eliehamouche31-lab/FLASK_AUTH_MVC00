@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cursor Class Demo</title>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<style>
+  table {
+    border-collapse: collapse;
+    width: 60%;
+    margin: 20px auto;
+  }
+  th, td {
+    border: 1px solid #333;
+    padding: 8px 12px;
+    text-align: left;
+  }
+  td.active-cell {
+    outline: 2px solid #0d6efd;
+    background-color: #eef5ff;
+  }
+  .btn {
+    padding: 4px 8px;
+    margin: 4px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<h2 style="text-align:center;">Cursor Class Editable Table Demo</h2>
+
+<table id="demoTable">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Age</th>
+      <th>City</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr data-id="1">
+      <td>John</td>
+      <td>28</td>
+      <td>New York</td>
+      <td><button class="btn btn-edit">Update</button></td>
+    </tr>
+    <tr data-id="2">
+      <td>Mary</td>
+      <td>32</td>
+      <td>London</td>
+      <td><button class="btn btn-edit">Update</button></td>
+    </tr>
+    <tr data-id="3">
+      <td>Paul</td>
+      <td>24</td>
+      <td>Paris</td>
+      <td><button class="btn btn-edit">Update</button></td>
+    </tr>
+  </tbody>
+</table>
+
+<script>
+/* =========================
+   CURSOR CLASS (STATIC)
+========================= */
+class Cursor {
+  static row = null;
+  static activeCell = null;
+  static colIndex = null;
+
+  static attachToRow($row) {
+    this.row = $row;
+    this.clear();
+    this.focusFirstCell();
+    this.bindEvents();
+  }
+
+  static focusFirstCell() {
+    const $firstEditable = this.row
+      .find("td")
+      .has("input:not([disabled]), select:not([disabled])")
+      .first();
+    this.focusCell($firstEditable);
+  }
+
+  static focusCell($td) {
+    if (!$td || !$td.length) return;
+
+    $(".active-cell").removeClass("active-cell");
+    this.activeCell = $td;
+    this.colIndex = $td.index();
+    $td.addClass("active-cell");
+
+    const $input = $td.find("input,select");
+    if ($input.length) {
+      $input.focus();
+      $input.select();
+    }
+  }
+
+  static bindEvents() {
+    $(document)
+      .off(".cursor")
+      .on("keydown.cursor", "td input, td select", this.handleKeydown.bind(this))
+      .on("click.cursor", "td input, td select", function() {
+        Cursor.focusCell($(this).closest("td"));
+      });
+  }
+
+  static handleKeydown(e) {
+    if (!this.activeCell) return;
+
+    const $td = this.activeCell;
+    const $row = this.row;
+
+    switch (e.key) {
+      case "ArrowRight":
+        e.preventDefault();
+        this.focusCell($td.nextAll("td").has("input,select").first());
+        break;
+      case "ArrowLeft":
+        e.preventDefault();
+        this.focusCell($td.prevAll("td").has("input,select").first());
+        break;
+      case "ArrowDown":
+        e.preventDefault();
+        this.focusSameColumn($row.next("tr"));
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        this.focusSameColumn($row.prev("tr"));
+        break;
+      case "Escape":
+        e.preventDefault();
+        Demo.cancelRowEdit($row);
+        break;
+      case "Enter":
+        e.preventDefault();
+        Demo.saveRowEdit($row);
+        break;
+    }
+  }
+
+  static focusSameColumn($targetRow) {
+    if (!$targetRow || !$targetRow.length) return;
+    const $td = $targetRow.children("td").eq(this.colIndex);
+    if ($td.find("input,select").length) this.focusCell($td);
+  }
+
+  static detach() {
+    $(document).off(".cursor");
+    this.clear();
+    this.row = null;
+  }
+
+  static clear() {
+    $(".active-cell").removeClass("active-cell");
+    this.activeCell = null;
+    this.colIndex = null;
+  }
+}
+
+/* =========================
+   DEMO LOGIC
+========================= */
+const Demo = {
+  makeRowEditable($row) {
+    $row.find("td").each(function() {
+      const $td = $(this);
+      if (!$td.has("button").length) {
+        const value = $td.text();
+        $td.html(`<input type="text" value="${value}">`);
+      }
+    });
+  },
+
+  collectDirtyData($row) {
+    const data = { id: $row.data("id") };
+    $row.find("input").each(function() {
+      data[$(this).closest("td").index()] = $(this).val();
+    });
+    return data;
+  },
+
+  saveRowEdit($row) {
+    const payload = this.collectDirtyData($row);
+    alert("Saved: " + JSON.stringify(payload));
+    this.restoreRowView($row);
+    Cursor.detach();
+  },
+
+  cancelRowEdit($row) {
+    this.restoreRowView($row);
+    Cursor.detach();
+  },
+
+  restoreRowView($row) {
+    $row.find("td").each(function() {
+      const $td = $(this);
+      if ($td.has("input").length) {
+        $td.text($td.find("input").val());
+      }
+    });
+  }
+};
+
+/* =========================
+   EVENT BINDINGS
+========================= */
+$(document).on("click", ".btn-edit", function() {
+  const $row = $(this).closest("tr");
+  Demo.makeRowEditable($row);
+  Cursor.attachToRow($row);
+});
+</script>
+</body>
+</html>
