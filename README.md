@@ -202,5 +202,10 @@ This repository provides a robust `Cursor` class that manages focus, navigation,
 
 ## Demo
 Open `examples/demo.html` to see the Cursor class in action.
-2️⃣
+2️⃣<div style="text-align:center; margin:20px;">
+  <h3>Cursor Lifecycle Diagram</h3>
+  <img src="images/A_flowchart_diagram_illustrates_the_cursor_lifecyc.png" 
+       alt="Cursor Lifecycle Diagram" style="max-width:600px; width:100%;">
+</div>
+
 
