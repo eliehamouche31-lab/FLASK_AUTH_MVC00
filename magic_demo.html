@@ -1,0 +1,161 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MagicTable Demo</title>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    background: #f4f4f4;
+  }
+  h2 {
+    text-align: center;
+  }
+  .magic-table {
+    width: 80%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background: #fff;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+  .magic-table th, .magic-table td {
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    text-align: left;
+  }
+  .magic-btn {
+    margin: 2px;
+    padding: 4px 8px;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    background: #0d6efd;
+    color: white;
+  }
+  .magic-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    display: none;
+    z-index: 1001;
+  }
+  .magic-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.3);
+    display: none;
+    z-index: 1000;
+  }
+  .magic-popup-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  .magic-popup-close {
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    font-size: 18px;
+  }
+</style>
+</head>
+<body>
+
+<h2>MagicTable Demo</h2>
+<div id="demoContainer"></div>
+
+<script>
+// ====================== Sample MagicUI Class (Simplified) ======================
+class MagicUI {
+  static magicTable(data, containerId, includeActions = true) {
+    const container = document.getElementById(containerId);
+    if (!data || !data.length) {
+      container.innerHTML = "<p style='text-align:center;color:#666;'>⚠️ No data available.</p>";
+      return;
+    }
+
+    let html = `<table class="magic-table">
+      <thead><tr>${Object.keys(data[0]).map(k => `<th>${k}</th>`).join("")}${includeActions ? "<th>Actions</th>":""}</tr></thead>
+      <tbody>`;
+    
+    data.forEach(row => {
+      html += "<tr>";
+      Object.entries(row).forEach(([k, v]) => html += `<td>${v}</td>`);
+      if (includeActions) {
+        const id = row.id;
+        html += `<td>
+          <button class="magic-btn btn-details" data-id="${id}">🔍 Details</button>
+          <button class="magic-btn btn-edit" data-id="${id}">✏ Edit</button>
+          <button class="magic-btn btn-delete" data-id="${id}">🗑 Delete</button>
+        </td>`;
+      }
+      html += "</tr>";
+    });
+
+    html += "</tbody></table>";
+    container.innerHTML = html;
+
+    // Bind buttons
+    $(container).find(".btn-details").off("click").on("click", function(){
+      const id = $(this).data("id");
+      MagicUI.popup(`Details for ID: ${id}`, {title: "Details"});
+    });
+    $(container).find(".btn-edit").off("click").on("click", function(){
+      const id = $(this).data("id");
+      const newVal = prompt("Enter new value:");
+      if(newVal) alert(`Edited ID ${id} with value: ${newVal}`);
+    });
+    $(container).find(".btn-delete").off("click").on("click", function(){
+      const id = $(this).data("id");
+      if(confirm(`Delete ID ${id}?`)) alert(`Deleted ID: ${id}`);
+    });
+  }
+
+  static popup(content, options = {}) {
+    const title = options.title || "Info";
+    const $overlay = $(`<div class="magic-popup-overlay"></div>`);
+    const $popup = $(`
+      <div class="magic-popup">
+        <div class="magic-popup-header"><span>${title}</span><button class="magic-popup-close">&times;</button></div>
+        <div class="magic-popup-body">${content}</div>
+      </div>`);
+    
+    $("body").append($overlay).append($popup);
+    $overlay.fadeIn(200);
+    $popup.fadeIn(200);
+
+    function closePopup() {
+      $popup.fadeOut(200, ()=> $popup.remove());
+      $overlay.fadeOut(200, ()=> $overlay.remove());
+    }
+
+    $overlay.on("click", closePopup);
+    $popup.find(".magic-popup-close").on("click", closePopup);
+  }
+}
+
+// ====================== Sample Data ======================
+const sampleData = [
+  {id: 1, name: "Alice", age: 28, city: "New York"},
+  {id: 2, name: "Bob", age: 32, city: "London"},
+  {id: 3, name: "Charlie", age: 24, city: "Paris"}
+];
+
+// ====================== Render MagicTable ======================
+MagicUI.magicTable(sampleData, "demoContainer");
+</script>
+
+</body>
+</html>
