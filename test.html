@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CursorManager Demo</title>
+
+<style>
+  table {
+    border-collapse: collapse;
+    width: 70%;
+    margin: 20px auto;
+  }
+  th, td {
+    border: 1px solid #ccc;
+    padding: 6px;
+    text-align: center;
+  }
+  tr.cursor {
+    background-color: #d0e7ff;
+  }
+  td.editable input {
+    width: 90%;
+  }
+  button {
+    margin: 2px;
+    padding: 3px 6px;
+  }
+</style>
+</head>
+<body>
+
+<h2 style="text-align:center;">CursorManager Test Page</h2>
+
+<table id="testTable">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Value</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="testTableBody"></tbody>
+</table>
+
+<!-- Table-level actions -->
+<div style="text-align:center;">
+  <button onclick="CursorManager.beginAdd('test')">Add</button>
+  <button onclick="CursorManager.cancelPageAction('test')">Cancel</button>
+</div>
+
+<!-- Navigation / debug -->
+<div style="text-align:center; margin-top:10px;">
+  <button onclick="CursorManager.previousRow('test')">↑ Prev</button>
+  <button onclick="CursorManager.nextRow('test')">↓ Next</button>
+  <button onclick="console.log('First:', CursorManager.getFirstRowId('test'))">First</button>
+  <button onclick="console.log('Last:', CursorManager.getLastRowId('test'))">Last</button>
+</div>
+
+<script src="static/js/CursorManager.js"></script>
+
+<script>
+// ---------------------
+// Sample data
+// ---------------------
+const testData = [
+  { id: 1, name: 'Alice', value: 10 },
+  { id: 2, name: 'Bob', value: 20 },
+  { id: 3, name: 'Charlie', value: 30 },
+  { id: 4, name: 'Diana', value: 40 }
+];
+
+// ---------------------
+// Render table
+// ---------------------
+function renderRows(data) {
+  const tbody = document.getElementById('testTableBody');
+  tbody.innerHTML = '';
+
+  data.forEach(row => {
+    const tr = document.createElement('tr');
+    tr.dataset.id = row.id;
+
+    tr.innerHTML = `
+      <td class="editable">${row.id}</td>
+      <td class="editable">${row.name}</td>
+      <td class="editable">${row.value}</td>
+      <td>
+        <button class="update-btn">Update</button>
+        <button class="delete-btn">Delete</button>
+        <button class="cancel-btn">Cancel</button>
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+}
+
+renderRows(testData);
+
+// ---------------------
+// Init CursorManager
+// ---------------------
+CursorManager.init('test', 'testTable', '#testTableBody');
+CursorManager.syncRows('test');
+CursorManager.setCursor('test', CursorManager.getFirstRowId('test'));
+
+// ---------------------
+// Row-level actions
+// ---------------------
+document.getElementById('testTableBody').addEventListener('click', e => {
+  const tr = e.target.closest('tr');
+  if (!tr) return;
+
+  const rowId = tr.dataset.id;
+  CursorManager.setCursor('test', rowId);
+
+  if (e.target.classList.contains('update-btn')) {
+    CursorManager.beginEdit('test', rowId);
+  }
+
+  if (e.target.classList.contains('delete-btn')) {
+    CursorManager.beginDelete('test', rowId);
+  }
+
+  if (e.target.classList.contains('cancel-btn')) {
+    CursorManager.cancelPageAction('test');
+  }
+});
+
+// ---------------------
+// Keyboard UX (Excel-like)
+// ---------------------
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    CursorManager.cancelPageAction('test');
+  }
+});
+</script>
+
+</body>
+</html>
+ 
