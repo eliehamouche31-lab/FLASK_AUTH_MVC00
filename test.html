@@ -49,12 +49,21 @@
   <button onclick="CursorManager.cancelPageAction('test')">Cancel</button>
 </div>
 
-<!-- Navigation / debug -->
+<!-- Navigation -->
+<!-- Navigation -->
 <div style="text-align:center; margin-top:10px;">
-  <button onclick="CursorManager.previousRow('test')">↑ Prev</button>
-  <button onclick="CursorManager.nextRow('test')">↓ Next</button>
-  <button onclick="console.log('First:', CursorManager.getFirstRowId('test'))">First</button>
-  <button onclick="console.log('Last:', CursorManager.getLastRowId('test'))">Last</button>
+  <button onclick="CursorManager.moveCursorUp('test')">↑ Prev</button>
+  <button onclick="CursorManager.moveCursorDown('test')">↓ Next</button>
+
+  <button onclick="
+    var firstId = CursorManager.getFirstRowId('test');
+    if (firstId) CursorManager.setCursor('test', firstId);
+  ">First</button>
+
+  <button onclick="
+    var lastId = CursorManager.getLastRowId('test');
+    if (lastId) CursorManager.setCursor('test', lastId);
+  ">Last</button>
 </div>
 
 <script src="static/js/CursorManager.js"></script>
@@ -120,7 +129,7 @@ document.getElementById('testTableBody').addEventListener('click', e => {
   }
 
   if (e.target.classList.contains('delete-btn')) {
-    CursorManager.beginDelete('test', rowId);
+    CursorManager.beginDelete_('test', rowId);
   }
 
   if (e.target.classList.contains('cancel-btn')) {
