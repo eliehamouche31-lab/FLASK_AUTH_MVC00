@@ -66,4 +66,43 @@ ________________________________________________________________________________
 Update        |       	saved → editing	           |   cursorManager.openRow(row)	           |    Opens the row, enables inputs
 Save	         | new → saved / editing → saved     |  	cursorManager.closeRow(row optional)  |   	Disables inputs, marks row saved
 Cancel        | 	new → remove / editing → revert	 |   cursorManager.closeRow(row)	          |    Removes new rows or collapses editing row
-Delete	       |   aved → removed	                 |    cursorManager.closeRow(row)	         |    Removes row from DOM, ensures any highlighting/focus reset
+Delete	       |   aved → removed	                 |    cursorManager.closeRow(row)	         |    Removes row from DOM, ensures any highlighting/focus reset                                  
+
+
+a diagram concept:
+
++---------------------------------------------------------------+
+|                        Shared JS CRUD Module                  |
+|---------------------------------------------------------------|
+| Functions:                                                    |
+|  - attachRowEvents(row)     <---- Handles Update/Delete/Cancel
+|  - saveRow(row)             <---- Handles insert or update
+|  - enableEditing(row)       <---- Makes inputs editable
+|  - disableEditing(row)      <---- Makes inputs read-only
+|  - buildPayload(row, fields) <--- Converts row inputs to payload
+|  - cursorManager.openRow(row) / closeRow(row) <--- Handles UI focus/scroll/highlight
++---------------------------------------------------------------+
+               ^
+               | (called from)
+               |
++--------------------------------------------------------------+
+|                        Table Rows (all pages)                |
+|--------------------------------------------------------------|
+| Each row has:                                                |
+|  - data-tab (p1-p10)                                         |
+|  - data-id (primary key)                                     |
+|  - data-state (new/saved/editing)                            |
+|  - Buttons: update / save / cancel / delete                  |
+|  - Inputs with field classes                                 |
+|  - Event listeners attached via attachRowEvents(row)         |
++--------------------------------------------------------------+
+               ^
+               | (new rows only)
+               |
++--------------------------------------------------------------+
+|                       Add Button (pages 4,5,6)               |
+|--------------------------------------------------------------|
+| - Calls addRow(tab)                                          |
+| - Creates a new row at bottom of table                       |
+| - Attaches same attachRowEvents(row) for shared behavior     |
++--------------------------------------------------------------+
