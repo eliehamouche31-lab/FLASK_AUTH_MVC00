@@ -1,12 +1,13 @@
  
-// ============================
-// CursorManager.js (simplified robust version)
-// ============================
+// =================================================
+// CursorManager.js (simplified robust version) 2026
+// =================================================
 class CursorManager {
     static _pages = {};
     static _listeners = {};
     static _cursors = {};
 
+ // initilaization 
     static init(pageId, tableId, tbodySelector) {
         const tbody = document.querySelector(tbodySelector);
         if (!tbody) return;
@@ -36,6 +37,7 @@ class CursorManager {
         console.log(`CursorManager initialized for page: ${pageId}`);
     }
 
+    //-------------cursor navigation----------
     static setCursor(pageId, rowId) {
         const p = CursorManager._pages[pageId];
         if (!p || !p.rowsById || !p.order) return;
@@ -71,6 +73,14 @@ class CursorManager {
         this.setCursor(pageId, keys[(idx + 1) % keys.length]);
     }
 
+    static previousRow(pageId) {
+        CursorManager.moveCursorUp(pageId);
+    }
+    static nextRow(pageId) {
+        CursorManager.moveCursorDown(pageId);
+    }
+
+//-------------- CRUD fucntions-----------------------------
     static beginEdit(pageId, rowId) {
         const p = CursorManager._pages[pageId];
         if (!p || !p.rowsById) return;
@@ -143,7 +153,7 @@ class CursorManager {
         </td>
     `;
 
-    // Ajout APRÈS la dernière ligne (Excel-like)
+    //// Added AFTER the last line (Excel-like)
     p.tbody.appendChild(tr);
 
     // Mise à jour de l’état interne
@@ -168,13 +178,24 @@ class CursorManager {
     firstInput?.focus();
    }
 
-    static beginDelete(pageId, rowId) {
-        const p = CursorManager._pages[pageId];
-        if (!p || !p.rowsById) return;
-        const row = p.rowsById.get(String(rowId));
-        if (!row) return;
-        console.log("Delete Confirm:", rowId);
-    }
+  static beginDelete(pageId, rowId) {
+    const p = CursorManager._pages[pageId];
+    if (!p || !p.rowsById) return;
+
+    p.mode = "delete";   // ← missing
+    console.log("Delete Confirm:", rowId);
+}
+
+static beginDelete_(pageId, rowId) {
+    CursorManager.deleteRow(pageId, rowId);
+}
+
+static deleteAtCursor(pageId) {
+    const p = CursorManager._pages[pageId];
+    if (!p || !p.cursorRowId) return;
+    CursorManager.deleteRow(pageId, p.cursorRowId);
+}
+
 
    static deleteRow(pageId, rowId) {
     const p = CursorManager._pages[pageId];
@@ -203,6 +224,24 @@ class CursorManager {
         p.rowsById.get(newCursor).classList.add('cursor');
     }
   }
+ 
+static cancelPageAction(pageId) {
+    const p = CursorManager._pages[pageId];
+    if (!p) return;
+
+    const rowId = p.cursorRowId;
+
+    if (p.mode === "edit") {
+        CursorManager.cancelEdit(pageId, rowId);
+    }
+
+    if (p.mode === "insert") {
+        if (rowId) CursorManager.deleteRow(pageId, rowId);
+    }
+
+    p.mode = "view";
+}
+ 
 
     static syncRows(pageId) {
         const p = CursorManager._pages[pageId];
@@ -220,6 +259,7 @@ class CursorManager {
         if (!p.cursorRowId || !rowsById.has(p.cursorRowId)) p.cursorRowId = order[0] ?? null;
     }
 
+    //------- navigation position of cursor---------------
     static getFirstRowId(pageId) {
         const p = CursorManager._pages[pageId];
         return p?.order?.[0] ?? null;
@@ -238,3 +278,4 @@ class CursorManager {
     }
 }
  
+
