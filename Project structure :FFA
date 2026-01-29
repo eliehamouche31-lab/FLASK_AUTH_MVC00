@@ -58,5 +58,10 @@ Longevity – Architecture remains adaptable for future technologies
 
 🔹 Summary
 
-By combining FFA pillars with a three-tier structure, this project ensures clarity, robustness, and future-proofing, making it suitable for modern web applications and complex software systems.
- 
+By combining FFA pillars with a three-tier structure, this project ensures clarity, robustness, and future-proofing, making it suitable for modern web applications and complex software       
+systems.
+ Action	      |         Row state	                |           CursorManager call            |        	Notes
+Update        |       	saved → editing	           |   cursorManager.openRow(row)	           |    Opens the row, enables inputs
+Save	         | new → saved / editing → saved     |  	cursorManager.closeRow(row optional)  |   	Disables inputs, marks row saved
+Cancel        | 	new → remove / editing → revert	 |   cursorManager.closeRow(row)	          |    Removes new rows or collapses editing row
+Delete	       |   aved → removed	                 |    cursorManager.closeRow(row)	         |    Removes row from DOM, ensures any highlighting/focus reset
