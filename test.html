@@ -2,151 +2,192 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>CursorManager Demo</title>
-
+<title>Test CursorManager</title>
 <style>
-  table {
-    border-collapse: collapse;
-    width: 70%;
-    margin: 20px auto;
-  }
-  th, td {
-    border: 1px solid #ccc;
-    padding: 6px;
-    text-align: center;
-  }
-  tr.cursor {
-    background-color: #d0e7ff;
-  }
-  td.editable input {
-    width: 90%;
-  }
-  button {
-    margin: 2px;
-    padding: 3px 6px;
-  }
+  table { border-collapse: collapse; width: 70%; margin: 20px auto; }
+  th, td { border: 1px solid #528582; padding: 6px; text-align: center; }
+  tr.cursor { background-color: #aaa; }
+  input { width: 90%; }
+  button { margin: 2px; padding: 3px 6px; }
 </style>
 </head>
 <body>
 
-<h2 style="text-align:center;">CursorManager Test Page</h2>
+<h2 style="text-align:center;">CursorManager Test Table</h2>
 
-<table id="testTable">
+<table id="table1">
   <thead>
-    <tr>
-      <th>ID</th>
-      <th>Name</th>
-      <th>Value</th>
-      <th>Actions</th>
-    </tr>
+    <tr><th>ID</th><th>Name</th><th>Value</th><th>Actions</th></tr>
   </thead>
-  <tbody id="testTableBody"></tbody>
+  <tbody></tbody>
 </table>
 
-<!-- Table-level actions -->
-<div style="text-align:center;">
-  <button onclick="CursorManager.beginAdd('test')">Add</button>
-  <button onclick="CursorManager.cancelPageAction('test')">Cancel</button>
-</div>
-
-<!-- Navigation -->
-<!-- Navigation -->
 <div style="text-align:center; margin-top:10px;">
-  <button onclick="CursorManager.moveCursorUp('test')">↑ Prev</button>
-  <button onclick="CursorManager.moveCursorDown('test')">↓ Next</button>
-
-  <button onclick="
-    var firstId = CursorManager.getFirstRowId('test');
-    if (firstId) CursorManager.setCursor('test', firstId);
-  ">First</button>
-
-  <button onclick="
-    var lastId = CursorManager.getLastRowId('test');
-    if (lastId) CursorManager.setCursor('test', lastId);
-  ">Last</button>
+  <button id="btn-add">Add</button>
+  <button id="btn-prev">↑ Prev</button>
+  <button id="btn-next">↓ Next</button>
+  <button id="btn-first">First</button>
+  <button id="btn-last">Last</button>
 </div>
 
 <script src="static/js/CursorManager.js"></script>
-
 <script>
-// ---------------------
-// Sample data
-// ---------------------
-const testData = [
-  { id: 1, name: 'Alice', value: 10 },
-  { id: 2, name: 'Bob', value: 20 },
-  { id: 3, name: 'Charlie', value: 30 },
-  { id: 4, name: 'Diana', value: 40 }
+const PAGE = 'page1';
+const tbody = document.querySelector('#table1 tbody');
+
+let data = [
+  {id:1,name:'Alice',value:10},
+  {id:2,name:'Bob',value:20},
+  {id:3,name:'Charlie',value:30},
+  {id:4,name:'Diana',value:40},
+  {id:5,name:'Oliver',value:50}
 ];
 
-// ---------------------
-// Render table
-// ---------------------
-function renderRows(data) {
-  const tbody = document.getElementById('testTableBody');
-  tbody.innerHTML = '';
+CursorManager.init(PAGE);
+data.forEach(d => CursorManager.registerRow(PAGE,String(d.id)));
 
-  data.forEach(row => {
+// --- Render ---
+function renderRows(){
+  tbody.innerHTML='';
+  const state = CursorManager.getState(PAGE);
+  state.rows.forEach(rowId=>{
+    const existing = data.find(d=>String(d.id)===String(rowId));
+    const rowData = existing || {id:rowId,name:'',value:''};
     const tr = document.createElement('tr');
-    tr.dataset.id = row.id;
-
-    tr.innerHTML = `
-      <td class="editable">${row.id}</td>
-      <td class="editable">${row.name}</td>
-      <td class="editable">${row.value}</td>
+    tr.dataset.id=rowId;
+    tr.innerHTML=`
+      <td><input value="${rowData.id}" disabled></td>
+      <td><input value="${rowData.name}" disabled></td>
+      <td><input value="${rowData.value}" disabled></td>
       <td>
         <button class="update-btn">Update</button>
+        <button class="save-btn" hidden>Save</button>
+        <button class="cancel-btn" hidden>Cancel</button>
         <button class="delete-btn">Delete</button>
-        <button class="cancel-btn">Cancel</button>
-      </td>
-    `;
-
+        <button class="cancel-btn">Annuler</button>
+      </td>`;
     tbody.appendChild(tr);
+  });
+  renderTable();
+}
+
+function renderTable() {
+  const state = CursorManager.getState(PAGE);
+  if (!state) return;
+
+  // Si aucun curseur défini en mode view, positionne sur la première ligne
+  if (!state.cursorRowId && state.rows.length > 0) {
+    CursorManager.setCursor(PAGE, state.rows[0]);
+    return; // render sera rappelé après setCursor
+  }
+
+  tbody.querySelectorAll('tr').forEach(tr => {
+    const rowId = tr.dataset.id;
+    const isCursor = String(rowId) === String(state.cursorRowId);
+    const inputs = tr.querySelectorAll('input');
+    const updateBtn = tr.querySelector('.update-btn');
+    const cancelBtn = tr.querySelector('.cancel-btn');
+    const deleteBtn = tr.querySelector('.delete-btn');
+
+    // Toujours surligner la ligne du curseur
+    tr.classList.toggle('cursor', isCursor);
+
+    if (isCursor && (state.mode === 'edit' || state.mode === 'add')) {
+      // Mode édition ou ajout
+      inputs.forEach(i => i.disabled = false);
+      updateBtn.disabled = true;
+      cancelBtn.disabled = false;
+      deleteBtn.disabled = true;
+      inputs[0].focus(); // curseur sur 1ère colonne
+    } else {
+      // Mode view
+      inputs.forEach(i => i.disabled = true);
+      updateBtn.disabled = false;
+      cancelBtn.disabled = true;
+      deleteBtn.disabled = false;
+    }
   });
 }
 
-renderRows(testData);
+// --- CursorManager change listener ---
+CursorManager.onChange(()=>renderTable());
 
-// ---------------------
-// Init CursorManager
-// ---------------------
-CursorManager.init('test', 'testTable', '#testTableBody');
-CursorManager.syncRows('test');
-CursorManager.setCursor('test', CursorManager.getFirstRowId('test'));
-
-// ---------------------
-// Row-level actions
-// ---------------------
-document.getElementById('testTableBody').addEventListener('click', e => {
+// --- Row buttons ---
+tbody.addEventListener('click', e=>{
   const tr = e.target.closest('tr');
-  if (!tr) return;
-
+  if(!tr) return;
   const rowId = tr.dataset.id;
-  CursorManager.setCursor('test', rowId);
 
-  if (e.target.classList.contains('update-btn')) {
-    CursorManager.beginEdit('test', rowId);
-  }
+  if(e.target.classList.contains('update-btn')){
+    CursorManager.setCursor(PAGE,rowId);
+    CursorManager.intent(PAGE,'edit');
 
-  if (e.target.classList.contains('delete-btn')) {
-    CursorManager.beginDelete_('test', rowId);
-  }
+  }else if(e.target.classList.contains('cancel-btn')){
+    CursorManager.setCursor(PAGE,rowId);
+    CursorManager.intent(PAGE,'view'); // annule la modification
+    renderTable(); 
 
-  if (e.target.classList.contains('cancel-btn')) {
-    CursorManager.cancelPageAction('test');
+  } else if(e.target.classList.contains('save-btn')){
+    // save data
+    const inputs = tr.querySelectorAll('input');
+    const idx = data.findIndex(d=>String(d.id)===String(rowId));
+    if(idx>=0){
+      data[idx].name = inputs[1].value;
+      data[idx].value = inputs[2].value;
+    } else {
+      data.push({id:rowId,name:inputs[1].value,value:inputs[2].value});
+    }
+    CursorManager.intent(PAGE,'view');
+
+  } else if(e.target.classList.contains('cancel-btn')){
+    CursorManager.intent(PAGE,'view');
+  }else if(e.target.classList.contains('delete-btn')){
+    CursorManager.setCursor(PAGE,rowId);
+    CursorManager.deleteRow(PAGE);
+    // supprimer du DOM
+    const tr = tbody.querySelector(`tr[data-id='${rowId}']`);
+    if(tr) tr.remove();
+    // supprimer du data array
+    const idx = data.findIndex(d=>String(d.id)===String(rowId));
+    if(idx>=0) data.splice(idx,1);
+    renderTable(); // <-- important
   }
 });
 
-// ---------------------
-// Keyboard UX (Excel-like)
-// ---------------------
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    CursorManager.cancelPageAction('test');
+// --- Table-level buttons ---
+document.getElementById('btn-add').addEventListener('click',()=>{
+  const newId = CursorManager.addRow(PAGE);
+  renderRows();
+});
+
+document.getElementById('btn-prev').addEventListener('click', () => {
+  const state = CursorManager.getState(PAGE);
+  if (state.mode === 'view') CursorManager.moveCursorUp(PAGE);
+});
+
+document.getElementById('btn-next').addEventListener('click', () => {
+  const state = CursorManager.getState(PAGE);
+  if (state.mode === 'view') CursorManager.moveCursorDown(PAGE);
+});
+
+document.getElementById('btn-first').addEventListener('click', () => {
+  const state = CursorManager.getState(PAGE);
+  if (state.mode === 'view' && state.rows.length) {
+    CursorManager.setCursor(PAGE, state.rows[0]);
   }
 });
+
+document.getElementById('btn-last').addEventListener('click', () => {
+  const state = CursorManager.getState(PAGE);
+  if (state.mode === 'view' && state.rows.length) {
+    CursorManager.setCursor(PAGE, state.rows[state.rows.length-1]);
+  }
+});
+
+// --- Initial render ---
+renderRows();
+
 </script>
-
 </body>
 </html>
  
